@@ -1,18 +1,43 @@
-const minimist = require("minimist");
-const { bold, cyan } = require("chalk");
-const pruddy = require("pruddy-error");
-const { initialiseConfig } = require("./config.js");
-const { login } = require("./login.js");
-const { displayMainMenu } = require("./menu.js");
+const { red, white, green } = require("chalk");
+const { star } = require("figures");
+const { getConfig } = require("./config.js");
+const { getPassword } = require("./input.js");
+const { getArchive, initialiseArchive } = require("./archive.js");
+const { renderMenu } = require("./menu.js");
 
-const argv = minimist(process.argv.slice(2));
+console.log(` ${white(star)}  ${red("NPM User Switch")}`);
 
-console.log(bold(cyan("NPM User Account Switcher")));
+function handleError(err) {
+    console.error(`A fatal error has occurred: ${err.message}`);
+    process.exit(1);
+}
 
-initialiseConfig()
-    .then(login)
-    .then(displayMainMenu)
-    .catch(err => {
-        console.error(pruddy(err));
-        process.exit(1);
-    });
+function openArchive() {
+    const archiveContents = getConfig().get("archive");
+    console.log("Enter your master password to switch accounts:");
+    return getPassword()
+        .then(password => getArchive(archiveContents, password))
+        .then(archive => renderMenu(archive));
+}
+
+function prepareArchive() {
+    console.log("No records exist for account storage: We'll create them now...");
+    console.log("Choose a master password for switching accounts:");
+    return getPassword(/* confirm: */ true)
+        .then(password => initialiseArchive(password))
+        .then(archiveString => {
+            const config = getConfig();
+            config.set("archive", archiveString);
+            config.save();
+            console.log(green("Local encrypted archive created"));
+        });
+}
+
+if (!getConfig().get("archive")) {
+    prepareArchive()
+        .then(openArchive)
+        .catch(handleError);
+} else {
+    openArchive()
+        .catch(handleError);
+}
