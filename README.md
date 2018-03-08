@@ -2,7 +2,7 @@
 
 > Easily switch NPM user accounts
 
-[![npm version](https://badge.fury.io/js/npm-user-switch.svg)](https://www.npmjs.com/package/npm-user-switch)
+[![npm version](https://badge.fury.io/js/npm-user-switch.svg)](https://www.npmjs.com/package/npm-user-switch) [![Build Status](https://travis-ci.org/perry-mitchell/npm-user-switch.svg?branch=master)](https://travis-ci.org/perry-mitchell/npm-user-switch)
 
 ![npm-user-switch menu](https://raw.githubusercontent.com/perry-mitchell/npm-user-switch/master/screenshot.jpg)
 
