@@ -4,14 +4,23 @@
   "description": "NPM user switch",
   "main": "source/index.js",
   "scripts": {
+    "format": "prettier --write '{source,test}/**/*.js'",
+    "precommit": "lint-staged",
     "pub": "np",
     "start": "node source/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "npm run test:format",
+    "test:format": "prettier-check '{source,test}/**/*.js'"
   },
   "bin": {
     "npm-user-switch": "./source/cli.js"
   },
-  "author": "",
+  "lint-staged": {
+    "{source,test}/**/*.js": [
+      "prettier --write",
+      "git add"
+    ]
+  },
+  "author": "Perry Mitchell <perry@perrymitchell.net>",
   "license": "MIT",
   "dependencies": {
     "buttercup": "^1.5.1",
@@ -27,6 +36,10 @@
   },
   "preferGlobal": true,
   "devDependencies": {
-    "np": "^2.20.1"
+    "husky": "^0.14.3",
+    "lint-staged": "^7.0.0",
+    "np": "^2.20.1",
+    "prettier": "^1.11.1",
+    "prettier-check": "^2.0.0"
   }
 }
