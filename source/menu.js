@@ -7,13 +7,13 @@ const eol = require("eol");
 const { play } = require("figures");
 const { green, underline } = require("chalk");
 const { getPassword } = require("./input.js");
-const { saveArchive } = require("./archive.js");
+const { changePassword, saveArchive } = require("./archive.js");
 const { getConfig } = require("./config.js");
 
 const readFile = pify(fs.readFile);
 const writeFile = pify(fs.writeFile);
 
-function renderAddAccount(archive) {
+function addAcount(archive) {
     const npmConf = initNPMConf();
     const accountsGroup = archive.findGroupsByTitle("accounts")[0];
     console.log("Prompting for NPM login...");
@@ -45,6 +45,21 @@ function renderAddAccount(archive) {
         });
 }
 
+function changeArchivePassword(archive) {
+    console.log("Enter a new master password:");
+    return getPassword(/* confirm: */ true)
+        .then(newPassword => changePassword(archive, newPassword))
+        .then(() => {
+            console.log("Changing password...");
+            return saveArchive(archive)
+                .then(archiveContents => {
+                    const config = getConfig();
+                    config.set("archive", archiveContents);
+                    config.save();
+                });
+        });
+}
+
 function renderMenu(archive) {
     const accountsGroup = archive.findGroupsByTitle("accounts")[0];
     return inquirer
@@ -59,6 +74,7 @@ function renderMenu(archive) {
                         value: `login:${entry.getID()}`
                     })),
                     { name: "Add account", value: "add" },
+                    { name: "Change password", value: "change-password" },
                     { name: "Exit", value: "exit" }
                 ]
             }
@@ -69,7 +85,9 @@ function renderMenu(archive) {
             }
             switch (action) {
                 case "add":
-                    return renderAddAccount(archive).then(() => renderMenu(archive));
+                    return addAcount(archive).then(() => renderMenu(archive));
+                case "change-password":
+                    return changeArchivePassword(archive).then(() => renderMenu(archive));
                 case "exit":
                     console.log("Exiting...");
                     break;
