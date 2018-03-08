@@ -4,7 +4,7 @@ const execa = require("execa");
 const initNPMConf = require("npm-conf");
 const pify = require("pify");
 const eol = require("eol");
-const { play } = require("figures");
+const { play, pointer } = require("figures");
 const { green, underline } = require("chalk");
 const { getPassword } = require("./input.js");
 const { changePassword, saveArchive } = require("./archive.js");
@@ -60,6 +60,30 @@ function changeArchivePassword(archive) {
         });
 }
 
+function renameEntry(archive, entryID) {
+    return inquirer
+        .prompt([
+            {
+                type: "input",
+                name: "name",
+                message: "Enter new name:",
+                validate: name => name.trim().length > 0 ? true : "Please enter a name"
+            }
+        ])
+        .then(({ name }) => {
+            const accountsGroup = archive.findGroupsByTitle("accounts")[0];
+            const accountEntry = accountsGroup.findEntryByID(entryID);
+            accountEntry.setProperty("title", name);
+            console.log("Saving changes...");
+            return saveArchive(archive)
+                .then(archiveContents => {
+                    const config = getConfig();
+                    config.set("archive", archiveContents);
+                    config.save();
+                });
+        });
+}
+
 function renderMenu(archive) {
     const accountsGroup = archive.findGroupsByTitle("accounts")[0];
     return inquirer
@@ -75,6 +99,7 @@ function renderMenu(archive) {
                     })),
                     { name: "Add account", value: "add" },
                     { name: "Change password", value: "change-password" },
+                    { name: "Rename account", value: "rename" },
                     { name: "Exit", value: "exit" }
                 ]
             }
@@ -88,8 +113,41 @@ function renderMenu(archive) {
                     return addAcount(archive).then(() => renderMenu(archive));
                 case "change-password":
                     return changeArchivePassword(archive).then(() => renderMenu(archive));
+                case "rename":
+                    return renderRenameMenu(archive).then(() => renderMenu(archive));
                 case "exit":
                     console.log("Exiting...");
+                    break;
+                default:
+                    throw new Error(`Unknown menu selection: ${action}`);
+            }
+        });
+}
+
+function renderRenameMenu(archive) {
+    const accountsGroup = archive.findGroupsByTitle("accounts")[0];
+    return inquirer
+        .prompt([
+            {
+                type: "list",
+                name: "action",
+                message: "Select an account to rename:",
+                choices: [
+                    ...accountsGroup.getEntries().map(entry => ({
+                        name: ` ${pointer} ${entry.getProperty("title")}`,
+                        value: `rename:${entry.getID()}`
+                    })),
+                    { name: "Cancel", value: "cancel" }
+                ]
+            }
+        ])
+        .then(({ action }) => {
+            if (/^rename:/.test(action)) {
+                return renameEntry(archive, action.replace(/^rename:/, ""));
+            }
+            switch (action) {
+                case "cancel":
+                    // skip
                     break;
                 default:
                     throw new Error(`Unknown menu selection: ${action}`);
