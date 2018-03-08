@@ -4,6 +4,7 @@
   "description": "NPM user switch",
   "main": "source/index.js",
   "scripts": {
+    "pub": "np",
     "start": "node source/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -24,5 +25,8 @@
     "read": "^1.0.7",
     "user-config": "^0.1.0"
   },
-  "preferGlobal": true
+  "preferGlobal": true,
+  "devDependencies": {
+    "np": "^2.20.1"
+  }
 }
