@@ -20,6 +20,10 @@
       "git add"
     ]
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/perry-mitchell/npm-user-switch.git"
+  },
   "author": "Perry Mitchell <perry@perrymitchell.net>",
   "license": "MIT",
   "dependencies": {
