@@ -33,12 +33,11 @@ function addAcount(archive) {
         })
         .then(() => {
             console.log("Saving new account...");
-            return saveArchive(archive)
-                .then(archiveContents => {
-                    const config = getConfig();
-                    config.set("archive", archiveContents);
-                    config.save();
-                });
+            return saveArchive(archive).then(archiveContents => {
+                const config = getConfig();
+                config.set("archive", archiveContents);
+                config.save();
+            });
         })
         .then(() => {
             console.log(green("Account saved"));
@@ -51,12 +50,11 @@ function changeArchivePassword(archive) {
         .then(newPassword => changePassword(archive, newPassword))
         .then(() => {
             console.log("Changing password...");
-            return saveArchive(archive)
-                .then(archiveContents => {
-                    const config = getConfig();
-                    config.set("archive", archiveContents);
-                    config.save();
-                });
+            return saveArchive(archive).then(archiveContents => {
+                const config = getConfig();
+                config.set("archive", archiveContents);
+                config.save();
+            });
         });
 }
 
@@ -67,7 +65,7 @@ function renameEntry(archive, entryID) {
                 type: "input",
                 name: "name",
                 message: "Enter new name:",
-                validate: name => name.trim().length > 0 ? true : "Please enter a name"
+                validate: name => (name.trim().length > 0 ? true : "Please enter a name")
             }
         ])
         .then(({ name }) => {
@@ -75,12 +73,11 @@ function renameEntry(archive, entryID) {
             const accountEntry = accountsGroup.findEntryByID(entryID);
             accountEntry.setProperty("title", name);
             console.log("Saving changes...");
-            return saveArchive(archive)
-                .then(archiveContents => {
-                    const config = getConfig();
-                    config.set("archive", archiveContents);
-                    config.save();
-                });
+            return saveArchive(archive).then(archiveContents => {
+                const config = getConfig();
+                config.set("archive", archiveContents);
+                config.save();
+            });
         });
 }
 

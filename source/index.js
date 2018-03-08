@@ -38,6 +38,5 @@ if (!getConfig().get("archive")) {
         .then(openArchive)
         .catch(handleError);
 } else {
-    openArchive()
-        .catch(handleError);
+    openArchive().catch(handleError);
 }

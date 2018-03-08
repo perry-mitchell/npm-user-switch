@@ -3,9 +3,7 @@ const read = require("read");
 function getPassword(confirm = false) {
     const getPass = (shouldConfirm, firstPass) => {
         return new Promise((resolve, reject) => {
-            const message = shouldConfirm ?
-                "Password (confirm): " :
-                "Password: ";
+            const message = shouldConfirm ? "Password (confirm): " : "Password: ";
             read({ prompt: message, silent: true }, function(err, password) {
                 if (err) {
                     return reject(err);
