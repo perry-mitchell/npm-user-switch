@@ -2,6 +2,8 @@
 
 > Easily switch NPM user accounts
 
+![npm-user-switch menu](https://raw.githubusercontent.com/perry-mitchell/npm-user-switch/master/screenshot.jpg)
+
 ## About
 Both my work and my personal development utilise NPM accounts. Sometimes I need to easily switch between them, and entering their different passwords is tiresome. Using `npm-user-switch`, I can easily use one master password to manage logging in to any number of accounts.
 
