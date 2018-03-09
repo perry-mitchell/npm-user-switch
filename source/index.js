@@ -1,11 +1,13 @@
-const { red, white, green } = require("chalk");
+const { red, white, green, dim } = require("chalk");
 const { star } = require("figures");
 const { getConfig } = require("./config.js");
 const { getPassword } = require("./input.js");
 const { getArchive, initialiseArchive } = require("./archive.js");
 const { renderMenu } = require("./menu.js");
 
-console.log(` ${white(star)}  ${red("NPM User Switch")}`);
+const { version } = require("../package.json");
+
+console.log(` ${white(star)}  ${red("NPM User Switch")} ${dim(`v${version}`)}`);
 
 function handleError(err) {
     console.error(`A fatal error has occurred: ${err.message}`);
