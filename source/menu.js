@@ -5,7 +5,7 @@ const initNPMConf = require("npm-conf");
 const pify = require("pify");
 const eol = require("eol");
 const { play, pointer } = require("figures");
-const { green, underline } = require("chalk");
+const { green, yellow, gray, underline } = require("chalk");
 const { getPassword } = require("./input.js");
 const { changePassword, saveArchive } = require("./archive.js");
 const { getConfig } = require("./config.js");
@@ -58,6 +58,23 @@ function changeArchivePassword(archive) {
         });
 }
 
+function presentCurrentUser(archive) {
+    const accountsGroup = archive.findGroupsByTitle("accounts")[0];
+    const npmConf = initNPMConf();
+    const npmrcLocation = npmConf.get("userconfig");
+    return readFile(npmrcLocation, "utf8")
+        .then(rcContents => rcContents.split(eol.lf))
+        .then(rcLines => rcLines.find(line => /:_authToken=/.test(line)))
+        .then(registryAuth => {
+            const currentEntry = accountsGroup
+                .getEntries()
+                .find(entry => entry.getProperty("password") === registryAuth);
+            const name = currentEntry ? currentEntry.getProperty("title") : "(unknown)";
+            const colour = currentEntry ? yellow : gray;
+            console.log(`Current account: ${colour(name)}`);
+        });
+}
+
 function renameEntry(archive, entryID) {
     return inquirer
         .prompt([
@@ -83,24 +100,26 @@ function renameEntry(archive, entryID) {
 
 function renderMenu(archive) {
     const accountsGroup = archive.findGroupsByTitle("accounts")[0];
-    return inquirer
-        .prompt([
-            {
-                type: "list",
-                name: "action",
-                message: "Select an account to log in to, or choose another action:",
-                choices: [
-                    ...accountsGroup.getEntries().map(entry => ({
-                        name: ` ${play} ${entry.getProperty("title")}`,
-                        value: `login:${entry.getID()}`
-                    })),
-                    { name: "Add account", value: "add" },
-                    { name: "Change password", value: "change-password" },
-                    { name: "Rename account", value: "rename" },
-                    { name: "Exit", value: "exit" }
-                ]
-            }
-        ])
+    return presentCurrentUser(archive)
+        .then(() =>
+            inquirer.prompt([
+                {
+                    type: "list",
+                    name: "action",
+                    message: "Select an account to log in to, or choose another action:",
+                    choices: [
+                        ...accountsGroup.getEntries().map(entry => ({
+                            name: ` ${play} ${entry.getProperty("title")}`,
+                            value: `login:${entry.getID()}`
+                        })),
+                        { name: "Add account", value: "add" },
+                        { name: "Change password", value: "change-password" },
+                        { name: "Rename account", value: "rename" },
+                        { name: "Exit", value: "exit" }
+                    ]
+                }
+            ])
+        )
         .then(({ action }) => {
             if (/^login:/.test(action)) {
                 return switchAccount(archive, action.replace(/^login:/, ""));
@@ -174,7 +193,7 @@ function switchAccount(archive, entryID) {
             return writeFile(npmrcLocation, rcLines.join(eol.lf));
         })
         .then(() => {
-            console.log(`User changed to: ${accountName}`);
+            console.log(`User changed to: ${yellow(accountName)}`);
         });
 }
 
