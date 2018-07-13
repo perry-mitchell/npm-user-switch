@@ -1,5 +1,10 @@
 # npm-user-switch changelog
 
+## v0.3.0
+_2018-07-13_
+
+ * Add support for deleting accounts
+
 ## v0.2.0
 _2018-03-09_
 
