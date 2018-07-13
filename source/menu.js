@@ -5,7 +5,7 @@ const initNPMConf = require("npm-conf");
 const pify = require("pify");
 const eol = require("eol");
 const { play, pointer } = require("figures");
-const { green, yellow, gray, underline } = require("chalk");
+const { green, yellow, gray, red, underline } = require("chalk");
 const { getPassword } = require("./input.js");
 const { changePassword, saveArchive } = require("./archive.js");
 const { getConfig } = require("./config.js");
@@ -58,6 +58,18 @@ function changeArchivePassword(archive) {
         });
 }
 
+function deleteEntry(archive, entryID) {
+    const accountsGroup = archive.findGroupsByTitle("accounts")[0];
+    const accountEntry = accountsGroup.findEntryByID(entryID);
+    accountEntry.delete();
+    console.log("Saving changes...");
+    return saveArchive(archive).then(archiveContents => {
+        const config = getConfig();
+        config.set("archive", archiveContents);
+        config.save();
+    });
+}
+
 function presentCurrentUser(archive) {
     const accountsGroup = archive.findGroupsByTitle("accounts")[0];
     const npmConf = initNPMConf();
@@ -98,6 +110,37 @@ function renameEntry(archive, entryID) {
         });
 }
 
+function renderDeleteMenu(archive) {
+    const accountsGroup = archive.findGroupsByTitle("accounts")[0];
+    return inquirer
+        .prompt([
+            {
+                type: "list",
+                name: "action",
+                message: `Select an account to ${red("delete")}:`,
+                choices: [
+                    ...accountsGroup.getEntries().map(entry => ({
+                        name: ` ${pointer} ${entry.getProperty("title")}`,
+                        value: `delete:${entry.getID()}`
+                    })),
+                    { name: "Cancel", value: "cancel" }
+                ]
+            }
+        ])
+        .then(({ action }) => {
+            if (/^delete:/.test(action)) {
+                return deleteEntry(archive, action.replace(/^delete:/, ""));
+            }
+            switch (action) {
+                case "cancel":
+                    // skip
+                    break;
+                default:
+                    throw new Error(`Unknown menu selection: ${action}`);
+            }
+        });
+}
+
 function renderMenu(archive) {
     const accountsGroup = archive.findGroupsByTitle("accounts")[0];
     return presentCurrentUser(archive)
@@ -115,6 +158,7 @@ function renderMenu(archive) {
                         { name: "Add account", value: "add" },
                         { name: "Change password", value: "change-password" },
                         { name: "Rename account", value: "rename" },
+                        { name: "Delete account", value: "delete" },
                         { name: "Exit", value: "exit" }
                     ]
                 }
@@ -131,6 +175,8 @@ function renderMenu(archive) {
                     return changeArchivePassword(archive).then(() => renderMenu(archive));
                 case "rename":
                     return renderRenameMenu(archive).then(() => renderMenu(archive));
+                case "delete":
+                    return renderDeleteMenu(archive).then(() => renderMenu(archive));
                 case "exit":
                     console.log("Exiting...");
                     break;
