@@ -41,7 +41,7 @@
   "preferGlobal": true,
   "devDependencies": {
     "husky": "^0.14.3",
-    "lint-staged": "^7.0.0",
+    "lint-staged": "^7.2.0",
     "np": "^2.20.1",
     "prettier": "^1.11.1",
     "prettier-check": "^2.0.0"
