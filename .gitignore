@@ -2,4 +2,5 @@
 .vscode
 .history
 .DS_Store
+.prtnbr
 node_modules
