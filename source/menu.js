@@ -121,7 +121,7 @@ function renderDeleteMenu(archive) {
                 choices: [
                     ...accountsGroup.getEntries().map(entry => ({
                         name: ` ${pointer} ${entry.getProperty("title")}`,
-                        value: `delete:${entry.getID()}`
+                        value: `delete:${entry.id}`
                     })),
                     { name: "Cancel", value: "cancel" }
                 ]
@@ -153,7 +153,7 @@ function renderMenu(archive) {
                     choices: [
                         ...accountsGroup.getEntries().map(entry => ({
                             name: ` ${play} ${entry.getProperty("title")}`,
-                            value: `login:${entry.getID()}`
+                            value: `login:${entry.id}`
                         })),
                         { name: "Add account", value: "add" },
                         { name: "Change password", value: "change-password" },
@@ -197,7 +197,7 @@ function renderRenameMenu(archive) {
                 choices: [
                     ...accountsGroup.getEntries().map(entry => ({
                         name: ` ${pointer} ${entry.getProperty("title")}`,
-                        value: `rename:${entry.getID()}`
+                        value: `rename:${entry.id}`
                     })),
                     { name: "Cancel", value: "cancel" }
                 ]
